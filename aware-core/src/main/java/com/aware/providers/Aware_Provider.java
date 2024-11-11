@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
+
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
@@ -18,6 +19,10 @@ import com.aware.Aware;
 import com.aware.utils.DatabaseHelper;
 
 import java.util.HashMap;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * AWARE framework content provider - Device information - Framework settings -
@@ -318,12 +323,38 @@ public class Aware_Provider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case DEVICE_INFO:
                 long dev_id = database.insertWithOnConflict(DATABASE_TABLES[0], Aware_Device.DEVICE_ID, values, SQLiteDatabase.CONFLICT_IGNORE);
+                Log.d("DEVITEST", values.toString().replace(" ", ","));
+                try{
+
+                    ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    executorService.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try{
+                                URL url = new URL("http://10.0.2.2:8000/count/randomKey/" + values.toString());
+                                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                                connection.setRequestMethod("GET");
+                                int responseCode = connection.getResponseCode();
+                                Log.d("DEVITEST", Integer.toString(responseCode));
+                                connection.disconnect();}
+                            catch (Exception e){
+                                Log.e("DEVITEST", Log.getStackTraceString(e));
+                            }
+                        }
+                    });
+                }   catch (Exception e){
+                    Log.e("DEVITEST", e.toString());
+                }
                 if (dev_id > 0) {
                     Uri devUri = ContentUris.withAppendedId(
                             Aware_Device.CONTENT_URI, dev_id);
                     getContext().getContentResolver().notifyChange(devUri, null, false);
                     database.setTransactionSuccessful();
                     database.endTransaction();
+
+
+
+
                     return devUri;
                 }
                 database.endTransaction();
