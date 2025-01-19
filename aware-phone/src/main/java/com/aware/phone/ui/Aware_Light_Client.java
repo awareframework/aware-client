@@ -80,6 +80,7 @@ import android.os.Environment;
 import androidx.documentfile.provider.DocumentFile;
 
 
+
 /**
  *
  */
@@ -108,6 +109,10 @@ public class Aware_Light_Client extends Aware_Activity {
         super.onCreate(savedInstanceState);
 
         prefs = getSharedPreferences("com.aware.phone", Context.MODE_PRIVATE);
+
+        // Register preference change listener
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
 
         // Initialize views
         if (Aware.isStudy(getApplicationContext())) {
@@ -187,6 +192,7 @@ public class Aware_Light_Client extends Aware_Activity {
         registerReceiver(screenshotServiceStoppedReceiver, new IntentFilter(ScreenShot.ACTION_SCREENSHOT_SERVICE_STOPPED));
         registerReceiver(screenshotStatusReceiver, new IntentFilter(ScreenShot.ACTION_SCREENSHOT_STATUS));
         checkAndStartScreenshotService();
+        checkAndStartPlugin();
     }
 
     private void setupPluginNavigation() {
@@ -311,7 +317,6 @@ public class Aware_Light_Client extends Aware_Activity {
 
             Preference pref = values[0];
 
-            if (pref != null) Log.i(TAG, "Syncing pref with key: " + pref.getKey());
             if (getPreferenceParent(pref) == null) return;
 
             if (CheckBoxPreference.class.isInstance(pref)) {
@@ -457,6 +462,21 @@ public class Aware_Light_Client extends Aware_Activity {
                 Intent intent = projectionManager.createScreenCaptureIntent();
                 startActivityForResult(intent, REQUEST_CODE_SCREENSHOT);
             }
+        }
+    }
+
+    private void checkAndStartPlugin(){
+
+        if (Aware.getSetting(getApplicationContext(), Aware_Preferences.STATUS_PLUGIN_AMBIENT_NOISE).equals("true")) {
+            Aware.startPlugin(getApplicationContext(), "com.aware.plugin.ambient_noise");
+            } else {
+            Aware.stopPlugin(getApplicationContext(), "com.aware.plugin.ambient_noise");
+        }
+
+        if (Aware.getSetting(getApplicationContext(), Aware_Preferences.STATUS_PLUGIN_OPENWEATHER).equalsIgnoreCase("true")) {
+            Aware.startPlugin(getApplicationContext(), "com.aware.plugin.openweather");
+            } else {
+            Aware.stopPlugin(getApplicationContext(), "com.aware.plugin.openweather");
         }
     }
 
@@ -908,6 +928,8 @@ public class Aware_Light_Client extends Aware_Activity {
         }
         Log.d("AWARE-Light_Client", "AWARE-Light interface cleaned from the list of frequently used apps");
         super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
         unregisterReceiver(screenshotStatusReceiver);
         unregisterReceiver(packageMonitor);
         unregisterReceiver(screenshotServiceStoppedReceiver);

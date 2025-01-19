@@ -790,16 +790,24 @@
         android:key="@string/aware_plugins"
         android:title="Plugin">
         <Preference
-            android:key="plugins_manager"
-            android:persistent="false"
-            android:title="Plugins Manager"
-            android:summary="Configure AWARE plugins" />
+            android:key="ambient_noise_settings"
+            android:title="Ambient Noise"
+            android:summary="Configure ambient noise detection">
+            <intent
+                android:targetPackage="com.aware.phone"
+                android:targetClass="com.aware.plugin.ambient_noise.Settings"
+                />
+        </Preference>
 
         <Preference
-            android:key="stream_ui"
-            android:persistent="false"
-            android:title="Stream UI"
-            android:summary="View data stream" />
+            android:key="openweather_settings"
+            android:title="OpenWeather"
+            android:summary="Configure OpenWeather plugin">
+            <intent
+                android:targetPackage="com.aware.phone"
+                android:targetClass="com.aware.plugin.openweather.Settings"
+                />
+        </Preference>
     </PreferenceCategory>
 
     <PreferenceCategory

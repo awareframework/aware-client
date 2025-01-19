@@ -64,17 +64,8 @@ public class Plugin extends Aware_Plugin {
         super.onStartCommand(intent, flags, startId);
 
         if (PERMISSIONS_OK) {
+
             DEBUG = Aware.getSetting(this, Aware_Preferences.DEBUG_FLAG).equals("true");
-
-            String pluginStatus = Aware.getSetting(getApplicationContext(),
-                    Settings.STATUS_PLUGIN_AMBIENT_NOISE,
-                    PLUGIN_PACKAGE_NAME);
-
-//            if (pluginStatus.equalsIgnoreCase("false")) {
-//                Log.d(TAG, "Plugin is disabled, stopping...");
-//                Aware.stopPlugin(getApplicationContext(), getPackageName());
-//                return START_STICKY;
-//            }
 
             initializeSettings();
 
@@ -105,9 +96,6 @@ public class Plugin extends Aware_Plugin {
         }
         if (Aware.getSetting(getApplicationContext(), Settings.PLUGIN_AMBIENT_NOISE_SILENCE_THRESHOLD).isEmpty()) {
             Aware.setSetting(getApplicationContext(), Settings.PLUGIN_AMBIENT_NOISE_SILENCE_THRESHOLD, 50);
-        }
-        if (Aware.getSetting(getApplicationContext(), Settings.PLUGIN_AMBIENT_NOISE_NO_RAW).isEmpty()) {
-            Aware.setSetting(getApplicationContext(), Settings.PLUGIN_AMBIENT_NOISE_NO_RAW, true);
         }
     }
 
@@ -159,6 +147,7 @@ public class Plugin extends Aware_Plugin {
     @Override
     public void onDestroy() {
         try {
+            // Remove sync settings
             if (Aware.getAWAREAccount(this) != null) {
                 ContentResolver.setSyncAutomatically(Aware.getAWAREAccount(this), Provider.getAuthority(this), false);
                 ContentResolver.removePeriodicSync(
@@ -169,20 +158,10 @@ public class Plugin extends Aware_Plugin {
             }
 
             Scheduler.removeSchedule(this, SCHEDULER_PLUGIN_AMBIENT_NOISE);
-            Aware.setSetting(getApplicationContext(), Settings.STATUS_PLUGIN_AMBIENT_NOISE, false);
-
-            String packageName = getPackageName();
-            PluginsManager.disablePlugin(getApplicationContext(), packageName);
-
-            if (getPackageName().equals("com.aware.phone") ||
-                    getResources().getBoolean(R.bool.standalone)) {
-                sendBroadcast(new Intent(Aware.ACTION_AWARE_UPDATE_PLUGINS_INFO));
-            }
-
+            // Call super.onDestroy() only once, at the end
             super.onDestroy();
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "Error during plugin cleanup: " + e.getMessage());
-            super.onDestroy();
         }
     }
 

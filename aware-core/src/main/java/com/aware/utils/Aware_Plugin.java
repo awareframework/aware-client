@@ -130,12 +130,6 @@ public class Aware_Plugin extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        if (PERMISSIONS_OK) {
-            //Aware.debug(this, "destroyed: " + getClass().getName() + " package: " + getPackageName());
-
-            Aware.stopAWARE(getApplicationContext());
-        }
-
         if (contextBroadcaster != null) unregisterReceiver(contextBroadcaster);
     }
 

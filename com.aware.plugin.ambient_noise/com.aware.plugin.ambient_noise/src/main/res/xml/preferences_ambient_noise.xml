@@ -34,11 +34,4 @@
             android:summary="Silent below 50dB"
             android:title="How loud is silence?"/>
 
-    <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="plugin_ambient_noise_no_raw"
-            android:persistent="true"
-            android:summary="If enabled, the audio is not recorded."
-            android:title="Don't save raw audio"/>
-
 </PreferenceScreen>

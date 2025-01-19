@@ -174,6 +174,8 @@ public class Aware extends Service {
     public static final String AWARE_NOTIFICATION_CHANNEL_GENERAL = "AWARE_NOTIFICATION_CHANNEL_GENERAL";
     public static final String AWARE_NOTIFICATION_CHANNEL_SILENT = "AWARE_NOTIFICATION_CHANNEL_SILENT";
     public static final String AWARE_NOTIFICATION_CHANNEL_DATASYNC = "AWARE_NOTIFICATION_CHANNEL_DATASYNC";
+    public static final String ACTION_AWARE_START_PLUGIN = "ACTION_AWARE_START_PLUGIN";
+    public static final String ACTION_AWARE_STOP_PLUGIN = "ACTION_AWARE_STOP_PLUGIN";
 
     public static final int AWARE_NOTIFICATION_IMPORTANCE_GENERAL = NotificationManager.IMPORTANCE_HIGH;
     public static final int AWARE_NOTIFICATION_IMPORTANCE_SILENT = NotificationManager.IMPORTANCE_MIN;
@@ -782,6 +784,14 @@ public class Aware extends Service {
                     }
                 }
 
+                if (ACTION_AWARE_START_PLUGIN.equals(intent.getAction())) {
+                    String plugin = intent.getStringExtra("plugin");
+                    startPlugin(this, plugin);
+                } else if (ACTION_AWARE_STOP_PLUGIN.equals(intent.getAction())) {
+                    String plugin = intent.getStringExtra("plugin");
+                    stopPlugin(this, plugin);
+                }
+
                 if (intent.getAction().equalsIgnoreCase(ACTION_AWARE_KEEP_ALIVE)) {
                     startAWARE(getApplicationContext());
                     startPlugins(getApplicationContext());
@@ -878,27 +888,16 @@ public class Aware extends Service {
      * @param package_name
      */
     public synchronized static void stopPlugin(final Context context, final String package_name) {
-        PackageInfo packageInfo = PluginsManager.isInstalled(context, package_name);
-        if (packageInfo != null) {
-
-            PluginsManager.disablePlugin(context, package_name);
-
-            if (context.getPackageName().equals("com.aware.phone") || context.getResources().getBoolean(R.bool.standalone)) {
-                context.sendBroadcast(new Intent(Aware.ACTION_AWARE_UPDATE_PLUGINS_INFO)); //sync the Plugins Manager UI for running statuses
-            }
-
-            ComponentName componentName;
-            if (packageInfo.versionName.equals("bundled")) {
-                componentName = new ComponentName(context.getPackageName(), package_name + ".Plugin");
-                if (Aware.DEBUG) Log.d(Aware.TAG, "Stopping bundled: " + componentName.toString());
-            } else {
-                componentName = new ComponentName(package_name, package_name + ".Plugin");
-                if (Aware.DEBUG) Log.d(Aware.TAG, "Stopping external: " + componentName.toString());
-            }
+        try {
+            ComponentName componentName = new ComponentName(context.getPackageName(), package_name + ".Plugin");
+            if (Aware.DEBUG) Log.d(Aware.TAG, "Stopping bundled plugin: " + componentName.toString());
 
             Intent pluginIntent = new Intent();
             pluginIntent.setComponent(componentName);
             context.stopService(pluginIntent);
+
+        } catch (Exception e) {
+            if (Aware.DEBUG) Log.e(Aware.TAG, "Error stopping plugin: " + e.getMessage());
         }
     }
 
@@ -909,43 +908,49 @@ public class Aware extends Service {
      * @param package_name
      */
     public synchronized static void startPlugin(final Context context, final String package_name) {
-        PackageInfo packageInfo = PluginsManager.isInstalled(context, package_name);
-        if (packageInfo != null) {
+        ComponentName componentName = new ComponentName(context.getPackageName(), package_name + ".Plugin");
+        if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing bundled: " + componentName.toString());
 
-            PluginsManager.enablePlugin(context, package_name);
-
-            if (context.getPackageName().equals("com.aware.phone") || context.getResources().getBoolean(R.bool.standalone)) {
-                context.sendBroadcast(new Intent(Aware.ACTION_AWARE_UPDATE_PLUGINS_INFO)); //sync the Plugins Manager UI for running statuses
-            }
-
-            ComponentName componentName = null;
-            if (packageInfo.versionName.equals("bundled")) {
-                componentName = new ComponentName(context.getPackageName(), package_name + ".Plugin");
-                if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing bundled: " + componentName.toString());
-            } else {
-                componentName = new ComponentName(package_name, package_name + ".Plugin");
-                if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing external: " + componentName.toString());
-            }
-
-            Intent pluginIntent = new Intent();
-            pluginIntent.setComponent(componentName);
-            componentName = context.startService(pluginIntent);
-
-            //Try Kotlin compatibility
-            if (componentName == null) {
-                if (packageInfo.versionName.equals("bundled")) {
-                    componentName = new ComponentName(context.getPackageName(), package_name + ".PluginKt");
-                    if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing bundled: " + componentName.toString());
-                } else {
-                    componentName = new ComponentName(package_name, package_name + ".PluginKt");
-                    if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing external: " + componentName.toString());
-                }
-
-                pluginIntent = new Intent();
-                pluginIntent.setComponent(componentName);
-                context.startService(pluginIntent);
-            }
-        }
+        Intent pluginIntent = new Intent();
+        pluginIntent.setComponent(componentName);
+        context.startService(pluginIntent);
+//        PackageInfo packageInfo = PluginsManager.isInstalled(context, package_name);
+//        if (packageInfo != null) {
+//
+//            PluginsManager.enablePlugin(context, package_name);
+//
+//            if (context.getPackageName().equals("com.aware.phone") || context.getResources().getBoolean(R.bool.standalone)) {
+//                context.sendBroadcast(new Intent(Aware.ACTION_AWARE_UPDATE_PLUGINS_INFO)); //sync the Plugins Manager UI for running statuses
+//            }
+//
+//            ComponentName componentName = null;
+//            if (packageInfo.versionName.equals("bundled")) {
+//                componentName = new ComponentName(context.getPackageName(), package_name + ".Plugin");
+//                if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing bundled: " + componentName.toString());
+//            } else {
+//                componentName = new ComponentName(package_name, package_name + ".Plugin");
+//                if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing external: " + componentName.toString());
+//            }
+//
+//            Intent pluginIntent = new Intent();
+//            pluginIntent.setComponent(componentName);
+//            componentName = context.startService(pluginIntent);
+//
+//            //Try Kotlin compatibility
+//            if (componentName == null) {
+//                if (packageInfo.versionName.equals("bundled")) {
+//                    componentName = new ComponentName(context.getPackageName(), package_name + ".PluginKt");
+//                    if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing bundled: " + componentName.toString());
+//                } else {
+//                    componentName = new ComponentName(package_name, package_name + ".PluginKt");
+//                    if (Aware.DEBUG) Log.d(Aware.TAG, "Initializing external: " + componentName.toString());
+//                }
+//
+//                pluginIntent = new Intent();
+//                pluginIntent.setComponent(componentName);
+//                context.startService(pluginIntent);
+//            }
+//        }
     }
 
     private static boolean is_running(Context context, String package_name) {

@@ -18,7 +18,7 @@
         android:defaultValue="metric"
         android:entries="@array/units_labels"
         android:entryValues="@array/units_values"
-        android:key="units_plugin_openweather"
+        android:key="plugin_openweather_measurement_units"
         android:persistent="true"
         android:title="Measurement unit" />
 
@@ -35,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:defaultValue="ada11fb870974565377df238f3046aa9"
-        android:key="api_key_plugin_openweather"
+        android:key="plugin_openweather_api_key"
         android:persistent="true"
         android:summary="Get your free API key from openweathermap.org"
         android:title="API Key" />

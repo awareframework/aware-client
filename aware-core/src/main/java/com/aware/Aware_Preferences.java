@@ -479,6 +479,15 @@ public class Aware_Preferences {
     public static final String SCREENSHOT_PACKAGE_NAMES = "screenshot_package_names";
 
     /**
+     * Activate/deactivate ambient noise plugin
+     */
+    public static final String STATUS_PLUGIN_AMBIENT_NOISE = "status_plugin_ambient_noise";
+
+    /**
+     * Activate/deactivate openweather plugin
+     */
+    public static final String STATUS_PLUGIN_OPENWEATHER = "status_plugin_openweather";
+    /**
      * Activate/deactivate temperature sensor log (boolean)
      */
     public static final String STATUS_TEMPERATURE = "status_temperature";
