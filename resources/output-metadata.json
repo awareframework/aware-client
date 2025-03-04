@@ -37,6 +37,18 @@
       "filters": [
         {
           "filterType": "ABI",
+          "value": "arm64-v8a"
+        }
+      ],
+      "versionCode": 5,
+      "versionName": "4.5.5.beta",
+      "outputFile": "aware-phone-arm64-v8a-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
           "value": "armeabi-v7a"
         }
       ],
