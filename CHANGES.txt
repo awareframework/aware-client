@@ -1,4 +1,7 @@
 Change log for AWARE-Light
+4.5.5.beta
+- Add function to count installation and send info to official website
+
 4.5.4.beta
 - Fix logic of reschedule next day random esm trigger, avoid repeat appear of esm notification
 
