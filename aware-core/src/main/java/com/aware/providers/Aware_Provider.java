@@ -323,7 +323,6 @@ public class Aware_Provider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case DEVICE_INFO:
                 long dev_id = database.insertWithOnConflict(DATABASE_TABLES[0], Aware_Device.DEVICE_ID, values, SQLiteDatabase.CONFLICT_IGNORE);
-                Log.d("DEVITEST", values.toString().replace(" ", ","));
                 try{
 
                     ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -331,19 +330,18 @@ public class Aware_Provider extends ContentProvider {
                         @Override
                         public void run() {
                             try{
-                                URL url = new URL("http://10.0.2.2:8000/count/randomKey/" + values.toString());
+                                URL url = new URL("https://awareframework.com/aware_installation_counter.php?data=" + values.toString());
                                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                                 connection.setRequestMethod("GET");
                                 int responseCode = connection.getResponseCode();
-                                Log.d("DEVITEST", Integer.toString(responseCode));
                                 connection.disconnect();}
                             catch (Exception e){
-                                Log.e("DEVITEST", Log.getStackTraceString(e));
+                                Log.e("Aware", Log.getStackTraceString(e));
                             }
                         }
                     });
                 }   catch (Exception e){
-                    Log.e("DEVITEST", e.toString());
+                    Log.e("Aware", e.toString());
                 }
                 if (dev_id > 0) {
                     Uri devUri = ContentUris.withAppendedId(
