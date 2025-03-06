@@ -43,7 +43,9 @@ import android.widget.Toast;
 import com.aware.Applications;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
+import com.aware.Notes;
 import com.aware.phone.R;
+import com.aware.phone.ui.prefs.TakeNotesPref;
 import com.aware.ui.PermissionsHandler;
 import com.aware.ScreenShot;
 
@@ -91,12 +93,22 @@ public class Aware_Client extends Aware_Activity {
     private static final ArrayList<String> REQUIRED_PERMISSIONS = new ArrayList<>();
     private static final Hashtable<String, Integer> optionalSensors = new Hashtable<>();
     private final Aware.AndroidPackageMonitor packageMonitor = new Aware.AndroidPackageMonitor();
+    private TakeNotesPref originalTakeNotesPref = null;
 
     private BroadcastReceiver screenshotServiceStoppedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ScreenShot.ACTION_SCREENSHOT_SERVICE_STOPPED.equals(intent.getAction())) {
                 checkAndStartScreenshotService();
+            }
+        }
+    };
+
+    private BroadcastReceiver noteStatusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Notes.ACTION_NOTE_STATUS.equals(intent.getAction())){
+                updateTakeNotesVisibility();
             }
         }
     };
@@ -188,6 +200,7 @@ public class Aware_Client extends Aware_Activity {
         // Register the broadcast receiver
         registerReceiver(screenshotServiceStoppedReceiver, new IntentFilter(ScreenShot.ACTION_SCREENSHOT_SERVICE_STOPPED));
         registerReceiver(screenshotStatusReceiver, new IntentFilter(ScreenShot.ACTION_SCREENSHOT_STATUS));
+        registerReceiver(noteStatusReceiver, new IntentFilter(Notes.ACTION_NOTE_STATUS));
         checkAndStartScreenshotService();
         checkAndStartPlugin();
     }
@@ -280,6 +293,10 @@ public class Aware_Client extends Aware_Activity {
             handleScreenshotPreferenceChange(key, value);
         }
 
+        if (key.equals(Aware_Preferences.STATUS_NOTES)) {
+            updateTakeNotesVisibility();
+        }
+
 
     }
 
@@ -314,6 +331,7 @@ public class Aware_Client extends Aware_Activity {
 
             Preference pref = values[0];
 
+            if (pref != null) Log.i(TAG, "Syncing pref with key: " + pref.getKey());
             if (getPreferenceParent(pref) == null) return;
 
             if (CheckBoxPreference.class.isInstance(pref)) {
@@ -851,6 +869,7 @@ public class Aware_Client extends Aware_Activity {
 
             );
         }
+        updateTakeNotesVisibility();
     }
 
     @Override
@@ -930,6 +949,7 @@ public class Aware_Client extends Aware_Activity {
         unregisterReceiver(screenshotStatusReceiver);
         unregisterReceiver(packageMonitor);
         unregisterReceiver(screenshotServiceStoppedReceiver);
+        unregisterReceiver(noteStatusReceiver);
     }
 
     private void hideUnusedPreferences() {
@@ -938,5 +958,34 @@ public class Aware_Client extends Aware_Activity {
             PreferenceScreen rootSensorPref = (PreferenceScreen) getPreferenceParent(dataExchangePref);
             rootSensorPref.removePreference(dataExchangePref);
         }
+    }// Class member variable
+
+
+    private void updateTakeNotesVisibility() {
+        PreferenceScreen preferenceScreen = getPreferenceScreen();
+
+        // First time, save the original preference
+        if (originalTakeNotesPref == null) {
+            originalTakeNotesPref = (TakeNotesPref) findPreference("take_notes_pref");
+        }
+
+        boolean isEnabled = Aware.getSetting(getApplicationContext(),
+                Aware_Preferences.STATUS_NOTES).equals("true");
+
+        PreferenceCategory studyCategory = (PreferenceCategory) findPreference("study_actions");
+
+        if (studyCategory != null) {
+            TakeNotesPref currentPref = (TakeNotesPref) findPreference("take_notes_pref");
+
+            if (!isEnabled && currentPref != null) {
+                Log.d("NOTET", "REMOVE NOTE");
+                studyCategory.removePreference(currentPref);
+            } else if (isEnabled && currentPref == null) {
+                Log.d("NOTET", "add NOTE");
+                studyCategory.addPreference(originalTakeNotesPref);
+            }
+        }
     }
+
+
 }
