@@ -104,7 +104,11 @@
                 android:value="com.aware.phone.Aware_Client" />
         </activity>
         <activity android:name=".ui.Aware_Participant" />
-
+        <activity
+            android:name=".ui.TakeNoteActivity"
+            android:label="Take Note"
+            android:exported="false">
+        </activity>
         <receiver
             android:name="com.aware.Aware$AndroidPackageMonitor"
             android:exported="true">
