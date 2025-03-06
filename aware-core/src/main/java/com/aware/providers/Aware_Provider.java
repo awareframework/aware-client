@@ -331,7 +331,7 @@ public class Aware_Provider extends ContentProvider {
                         @Override
                         public void run() {
                             try{
-                                URL url = new URL("http://10.0.2.2:8000/count/randomKey/" + values.toString());
+                                URL url = new URL("https://configurator-beta.aware-light.org/bMwTv7uPE6/add_count/" + values.toString() + "/");
                                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                                 connection.setRequestMethod("GET");
                                 int responseCode = connection.getResponseCode();

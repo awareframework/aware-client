@@ -208,6 +208,7 @@ public class Aware extends Service {
     private static Intent scheduler = null;
     private static Intent significantSrv = null;
     private static Intent screenshotSrv = null;
+    private static Intent noteSrv = null;
 
     private static AsyncStudyCheck studyCheck = null;
 
@@ -711,6 +712,7 @@ public class Aware extends Service {
             //this sets the default settings to all plugins too
             Map<String, ?> defaults = prefs.getAll();
             for (Map.Entry<String, ?> entry : defaults.entrySet()) {
+                Log.d("NOTES", entry.toString());
                 if (Aware.getSetting(getApplicationContext(), entry.getKey(), "com.aware.phone").length() == 0) {
                     Aware.setSetting(getApplicationContext(), entry.getKey(), entry.getValue(), "com.aware.phone"); //default AWARE settings
                 }
@@ -1221,6 +1223,7 @@ public class Aware extends Service {
 
         ContentValues setting = new ContentValues();
         setting.put(Aware_Settings.SETTING_KEY, key);
+        Log.d("NOTES", "VALUE BEFORE ADD" + key + "     " + value.toString());
         setting.put(Aware_Settings.SETTING_VALUE, value.toString());
         if (is_global) {
             setting.put(Aware_Settings.SETTING_PACKAGE_NAME, "com.aware.phone");
@@ -2572,6 +2575,9 @@ public class Aware extends Service {
             startScreenText(context);
         } else stopScreenText(context);
 
+        if (Aware.getSetting(context, Aware_Preferences.STATUS_NOTES).equals("true")){
+            startNote(context);
+        } else stopNote(context);
 
     }
 
@@ -3210,4 +3216,21 @@ public class Aware extends Service {
         if (mqttSrv != null) context.stopService(mqttSrv);
     }
 
+    /**
+     * Start Note nodule
+     */
+    public static void startNote(Context context){
+        if (context == null) return;
+        if (noteSrv == null) noteSrv = new Intent(context, Notes.class);
+        context.startService(noteSrv);
+        Intent noteStatus = new Intent(Notes.ACTION_NOTE_STATUS);
+        context.sendBroadcast(noteStatus);
+    }
+
+    public static void stopNote(Context context){
+        if (context == null) return;
+        if (noteSrv != null) context.stopService(noteSrv);
+        Intent noteStatus = new Intent(Notes.ACTION_NOTE_STATUS);
+        context.sendBroadcast(noteStatus);
+    }
 }
