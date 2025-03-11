@@ -478,6 +478,12 @@ public class Aware_Preferences {
      */
     public static final String SCREENSHOT_PACKAGE_NAMES = "screenshot_package_names";
 
+
+    /**
+     * Notes function: active notes service
+     */
+    public static final String STATUS_NOTES="status_notes";
+
     /**
      * Activate/deactivate temperature sensor log (boolean)
      */
