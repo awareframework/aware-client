@@ -91,7 +91,6 @@ public class JoinStudyDialog extends DialogFragment {
             Log.i(TAG, "Joining study with URL " + url);
 
             JSONObject studyConfig;
-
             url = strings[0];
             input_password = strings[1];
 

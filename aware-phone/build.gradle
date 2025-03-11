@@ -45,7 +45,6 @@ android {
         resValue "string", "provider_traffic", android.defaultConfig.applicationId + ".provider.traffic"
         resValue "string", "provider_wifi", android.defaultConfig.applicationId + ".provider.wifi"
         resValue "string", "provider_screenshot", android.defaultConfig.applicationId + ".provider.screenshot"
-        resValue "string", "provider_notes", android.defaultConfig.applicationId + ".provider.notes"
 
         //plugins
         resValue "string", "provider_device_usage", android.defaultConfig.applicationId + ".provider.device_usage"

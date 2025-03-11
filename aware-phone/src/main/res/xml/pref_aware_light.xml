@@ -814,11 +814,8 @@
         android:key="study_actions"
         android:title="Study">
 
-
         <com.aware.phone.ui.prefs.StudyInfoPref
             android:key="study_info_pref" />
-        <com.aware.phone.ui.prefs.TakeNotesPref
-            android:key="take_notes_pref"/>
         <com.aware.phone.ui.prefs.StudySyncPref
             android:key="study_sync_pref" />
         <com.aware.phone.ui.prefs.ExportDataPref

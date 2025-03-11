@@ -333,7 +333,6 @@ public class StudyUtils extends IntentService {
         for (int i = 0; i < sensors.length(); i++) {
             try {
                 JSONObject sensor_config = sensors.getJSONObject(i);
-                Log.d("NOTES", "SENSORs " +  sensor_config);
                 Aware.setSetting(context, sensor_config.getString("setting"), sensor_config.get("value"));
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -584,7 +583,6 @@ public class StudyUtils extends IntentService {
             JSONObject responseJson = new JSONObject(responseStr);
             return responseJson;
         } catch (IOException e) {
-            Log.d("JOIN", e.getMessage());
             return null;
         }
     }
@@ -599,7 +597,6 @@ public class StudyUtils extends IntentService {
      */
     public static boolean validateStudyConfig(Context context, JSONObject config, String input_password) {
         for (String key: REQUIRED_STUDY_CONFIG_KEYS) {
-            Log.d("TEST config", config.toString());
             if (!config.has(key)) return false;
         }
 

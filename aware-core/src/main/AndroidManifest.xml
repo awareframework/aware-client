@@ -185,9 +185,6 @@
             android:name="com.aware.ScreenShot"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
-        <service
-            android:name="com.aware.Notes"
-            android:exported="true" />
 
 
 
@@ -456,15 +453,6 @@
             android:readPermission="com.aware.READ_CONTEXT_DATA"
             android:syncable="true"
             android:writePermission="com.aware.WRITE_CONTEXT_DATA" />
-
-        <provider
-            android:name="com.aware.providers.Notes_Provider"
-            android:authorities="${applicationId}.provider.notes"
-            android:exported="true"
-            android:label="@string/sensor_notes"
-            android:readPermission="com.aware.READ_CONTEXT_DATA"
-            android:syncable="true"
-            android:writePermission="com.aware.WRITE_CONTEXT_DATA"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -770,17 +758,6 @@
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/sync_screenshot" />
-        </service>
-
-        <service
-            android:name="com.aware.syncadapters.Notes_Sync"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/sync_notes" />
         </service>
 
 

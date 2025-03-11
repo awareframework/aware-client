@@ -34,7 +34,6 @@
     <string name="sync_study_config">Check for study updates</string>
     <string name="sync_study_data">Sync data</string>
     <string name="export_study_data">Export data</string>
-    <string name="take_notes">Take Note</string>
     <string name="join_study">Join a study</string>
     <string name="quit_study">Quit study</string>
     <string name="sign_up">Sign Up!</string>
@@ -71,7 +70,6 @@
     <string name="sensor_communications">Communications (call/text)</string>
     <string name="sensor_keyboard">Keyboard</string>
     <string name="sensor_significant">Significant motion</string>
-    <string name="sensor_notes">Take Notes</string>
 
     <string name="loading_join_study_title">Retrieving study details</string>
     <string name="loading_join_study_msg">Please wait...</string>
