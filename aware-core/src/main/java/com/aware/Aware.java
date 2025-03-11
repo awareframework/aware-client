@@ -714,7 +714,6 @@ public class Aware extends Service {
             //this sets the default settings to all plugins too
             Map<String, ?> defaults = prefs.getAll();
             for (Map.Entry<String, ?> entry : defaults.entrySet()) {
-                Log.d("NOTES", entry.toString());
                 if (Aware.getSetting(getApplicationContext(), entry.getKey(), "com.aware.phone").length() == 0) {
                     Aware.setSetting(getApplicationContext(), entry.getKey(), entry.getValue(), "com.aware.phone"); //default AWARE settings
                 }
@@ -1228,7 +1227,6 @@ public class Aware extends Service {
 
         ContentValues setting = new ContentValues();
         setting.put(Aware_Settings.SETTING_KEY, key);
-        Log.d("NOTES", "VALUE BEFORE ADD" + key + "     " + value.toString());
         setting.put(Aware_Settings.SETTING_VALUE, value.toString());
         if (is_global) {
             setting.put(Aware_Settings.SETTING_PACKAGE_NAME, "com.aware.phone");

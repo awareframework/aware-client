@@ -25,7 +25,6 @@ public class TakeNotesPref extends Preference {
     public TakeNotesPref(Context context, AttributeSet attrs) {
         super(context, attrs);
         setLayoutResource(R.layout.pref_take_notes);
-        Log.d("NOTES", "config info: " + Aware.getSetting(this.getContext(), Aware_Preferences.STATUS_NOTES));
     }
 
     @Override
