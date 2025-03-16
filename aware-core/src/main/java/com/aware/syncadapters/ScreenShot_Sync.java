@@ -35,6 +35,7 @@ public class ScreenShot_Sync extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d("Bind", "onBind called");
         return sSyncAdapter.getSyncAdapterBinder();
     }
 }

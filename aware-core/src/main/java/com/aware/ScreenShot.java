@@ -373,7 +373,7 @@ public class ScreenShot extends Aware_Sensor {
      * @param timestamp The timestamp for the captured image.
      */
     private void saveBitmap(Bitmap bitmap, long timestamp) {
-        File downloadsDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "aware-light/screenshot");
+        File downloadsDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "aware/screenshot");
         if (!downloadsDirectory.exists() && !downloadsDirectory.mkdirs()) {
             Log.e(TAG, "Failed to create directory: " + downloadsDirectory.getAbsolutePath());
             return;

@@ -74,6 +74,8 @@ public class AwareSyncAdapter extends AbstractThreadedSyncAdapter {
         highFrequencySensors.add("proximity");
         highFrequencySensors.add("screentext");
         highFrequencySensors.add("screenshot");
+        highFrequencySensors.add("plugin_ambient_noise");
+
         dontClearSensors.add("aware_studies");
     }
 

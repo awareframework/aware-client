@@ -1,7 +1,6 @@
 package com.aware.phone.ui.prefs;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.Preference;
@@ -10,15 +9,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 import com.aware.phone.R;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.documentfile.provider.DocumentFile;
+
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import com.aware.phone.ui.Aware_Light_Client;
 
 import java.io.File;
 import java.io.FileInputStream;

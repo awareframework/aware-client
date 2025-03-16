@@ -154,9 +154,9 @@ public class ScreenshotCaptureService extends Service {
         Notification notification = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("Screen Capture")
                 .setContentText("Capturing screen every 5 seconds...")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_capture)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .addAction(R.drawable.ic_launcher_foreground, "Stop Capture", pStopSelf)
+                .addAction(R.drawable.ic_capture, "Stop Capture", pStopSelf)
                 .build();
 
         startForeground(NOTIFICATION_ID, notification);
@@ -273,7 +273,7 @@ public class ScreenshotCaptureService extends Service {
      * @param bitmap The bitmap to save.
      */
     private void saveBitmap(Bitmap bitmap) {
-        File downloadsDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "aware-light/screenshot");
+        File downloadsDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "aware/screenshot");
         if (!downloadsDirectory.exists() && !downloadsDirectory.mkdirs()) {
             Log.e(TAG, "Failed to create directory: " + downloadsDirectory.getAbsolutePath());
             return;

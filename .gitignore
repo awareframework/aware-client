@@ -1,4 +1,7 @@
-
+build/
 /.gradle
 /.idea
 aware-phone/release/*
+.DS_Store
+.DS_Store?
+local.properties

@@ -1,0 +1,5 @@
+dependencies {
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
+    implementation 'me.franfernandez:fftpack:0.1'
+    api project(':aware-core')
+}
