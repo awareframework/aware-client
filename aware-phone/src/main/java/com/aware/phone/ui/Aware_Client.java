@@ -36,7 +36,6 @@ import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.Toast;
@@ -47,7 +46,6 @@ import com.aware.Aware_Preferences;
 import com.aware.phone.R;
 import com.aware.ui.PermissionsHandler;
 import com.aware.ScreenShot;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,7 +59,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -84,7 +81,7 @@ import androidx.documentfile.provider.DocumentFile;
 /**
  *
  */
-public class Aware_Light_Client extends Aware_Activity {
+public class Aware_Client extends Aware_Activity {
 
     public static boolean permissions_ok;
     private static Hashtable<Integer, Boolean> listSensorType;
@@ -122,7 +119,7 @@ public class Aware_Light_Client extends Aware_Activity {
             // Initialize plugin navigation
             setupPluginNavigation();
         } else {
-            setContentView(R.layout.activity_aware_light);
+            setContentView(R.layout.activity_aware);
             addPreferencesFromResource(R.xml.pref_aware_device);
         }
 //        hideUnusedPreferences();
@@ -357,7 +354,7 @@ public class Aware_Light_Client extends Aware_Activity {
             if (PreferenceScreen.class.isInstance(getPreferenceParent(pref))) {
                 PreferenceScreen parent = (PreferenceScreen) getPreferenceParent(pref);
 
-                boolean prefEnabled = Boolean.valueOf(Aware.getSetting(Aware_Light_Client.this, Aware_Preferences.ENABLE_CONFIG_UPDATE));
+                boolean prefEnabled = Boolean.valueOf(Aware.getSetting(Aware_Client.this, Aware_Preferences.ENABLE_CONFIG_UPDATE));
                 parent.setEnabled(prefEnabled);  // enabled/disabled based on config
 
                 ListAdapter children = parent.getRootAdapter();
@@ -634,7 +631,7 @@ public class Aware_Light_Client extends Aware_Activity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(Aware_Light_Client.this, "Exported: " + file.getName(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(Aware_Client.this, "Exported: " + file.getName(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         } else {
@@ -645,7 +642,7 @@ public class Aware_Light_Client extends Aware_Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(Aware_Light_Client.this, "Failed to export: " + file.getName(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Aware_Client.this, "Failed to export: " + file.getName(), Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -653,7 +650,7 @@ public class Aware_Light_Client extends Aware_Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(Aware_Light_Client.this, "All files exported successfully", Toast.LENGTH_LONG).show();
+                        Toast.makeText(Aware_Client.this, "All files exported successfully", Toast.LENGTH_LONG).show();
                     }
                 });
             } else {
@@ -661,7 +658,7 @@ public class Aware_Light_Client extends Aware_Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(Aware_Light_Client.this, "No files available to export.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Aware_Client.this, "No files available to export.", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -905,11 +902,11 @@ public class Aware_Light_Client extends Aware_Activity {
         // Handle based on whether it's system-initiated closure
         if (!isFinishing) {
             if (isBatteryOptimizationIgnored(this, "com.aware.phone")) {
-                Log.d("AWARE-Light_Client", "AWARE-Light stopped from background: may be caused by battery optimization");
-                Aware.debug(this, "AWARE-Light stopped from background: may be caused by battery optimization");
+                Log.d("AWARE-Client", "AWARE stopped from background: may be caused by battery optimization");
+                Aware.debug(this, "AWARE stopped from background: may be caused by battery optimization");
             } else {
-                Log.d("AWARE-Light_Client", "AWARE-Light stopped from background: may be caused by system settings");
-                Aware.debug(this, "AWARE-Light stopped from background: may be caused by system settings");
+                Log.d("AWARE-Client", "AWARE stopped from background: may be caused by system settings");
+                Aware.debug(this, "AWARE stopped from background: may be caused by system settings");
             }
         }
         super.onStop();
@@ -924,9 +921,9 @@ public class Aware_Light_Client extends Aware_Activity {
         // Handle based on whether it's user-initiated or system-initiated closure
         if (isFinishing) {
             // User initiated closure
-            Aware.debug(this, "AWARE-Light interface cleaned from the list of frequently used apps");
+            Aware.debug(this, "AWARE interface cleaned from the list of frequently used apps");
         }
-        Log.d("AWARE-Light_Client", "AWARE-Light interface cleaned from the list of frequently used apps");
+        Log.d("AWARE_Client", "AWARE interface cleaned from the list of frequently used apps");
         super.onDestroy();
         PreferenceManager.getDefaultSharedPreferences(this)
                 .unregisterOnSharedPreferenceChangeListener(this);

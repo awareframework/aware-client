@@ -2,17 +2,15 @@ package com.aware.phone.ui;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.PermissionChecker;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
-import com.aware.phone.Aware_Client;
 import com.aware.phone.R;
 import com.aware.phone.ui.dialogs.JoinStudyDialog;
 import com.aware.ui.PermissionsHandler;
@@ -38,7 +36,7 @@ public abstract class Aware_Activity extends AppCompatPreferenceActivity {
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     switch (item.getItemId()) {
                         case R.id.aware_sensors: //Sensors
-                            Intent sensors_ui = new Intent(getApplicationContext(), Aware_Light_Client.class);
+                            Intent sensors_ui = new Intent(getApplicationContext(), Aware_Client.class);
                             startActivity(sensors_ui);
                             break;
                         case R.id.aware_plugins: //Plugins
@@ -116,6 +114,6 @@ public abstract class Aware_Activity extends AppCompatPreferenceActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setTitle("AWARE-Light");
+        setTitle("AWARE");
     }
 }

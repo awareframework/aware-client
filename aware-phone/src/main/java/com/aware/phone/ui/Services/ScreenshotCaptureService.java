@@ -273,7 +273,7 @@ public class ScreenshotCaptureService extends Service {
      * @param bitmap The bitmap to save.
      */
     private void saveBitmap(Bitmap bitmap) {
-        File downloadsDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "aware-light/screenshot");
+        File downloadsDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "aware/screenshot");
         if (!downloadsDirectory.exists() && !downloadsDirectory.mkdirs()) {
             Log.e(TAG, "Failed to create directory: " + downloadsDirectory.getAbsolutePath());
             return;

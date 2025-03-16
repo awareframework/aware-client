@@ -335,7 +335,7 @@ public class Aware_Join_Study extends Aware_Activity {
                 //Reset the webservice server status because this one is not valid
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_WEBSERVICE, false);
 
-                Intent resetClient = new Intent(getApplicationContext(), Aware_Light_Client.class);
+                Intent resetClient = new Intent(getApplicationContext(), Aware_Client.class);
                 resetClient.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(resetClient);
 
@@ -422,7 +422,7 @@ public class Aware_Join_Study extends Aware_Activity {
                     finish();
 
                     //Redirect the user to the main UI
-                    Intent mainUI = new Intent(getApplicationContext(), Aware_Light_Client.class);
+                    Intent mainUI = new Intent(getApplicationContext(), Aware_Client.class);
                     mainUI.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(mainUI);
                 }
@@ -462,7 +462,7 @@ public class Aware_Join_Study extends Aware_Activity {
                 public void onDismiss(DialogInterface dialogInterface) {
                     finish();
                     //Redirect the user to the main UI
-                    Intent mainUI = new Intent(getApplicationContext(), Aware_Light_Client.class);
+                    Intent mainUI = new Intent(getApplicationContext(), Aware_Client.class);
                     mainUI.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(mainUI);
                 }

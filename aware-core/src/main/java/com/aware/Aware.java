@@ -2713,10 +2713,10 @@ public class Aware extends Service {
         // Handle based on whether it's user-initiated or system-initiated closure
         if (isFinishing) {
             // User initiated closure
-            Aware.debug(context, "AWARE-Light interface cleaned from the array of frequently used apps");
+            Aware.debug(context, "AWARE interface cleaned from the array of frequently used apps");
         } else {
             // System-initiated closure
-            Aware.debug(context, "AWARE-Light interface cleaned by smartphone system");
+            Aware.debug(context, "AWARE interface cleaned by smartphone system");
         }
     }
 

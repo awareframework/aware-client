@@ -1,15 +1,15 @@
-AWARE-Light Framework for Android Client
+AWARE Framework for Android Client
 ======================
 
-AWARE-Light is an Android framework dedicated to instrument, infer, log and share mobile context information,
-for application developers, researchers and smartphone users. AWARE-Light captures hardware-, software-, and 
+AWARE is an Android framework dedicated to instrument, infer, log and share mobile context information,
+for application developers, researchers and smartphone users. AWARE captures hardware-, software-, and 
 human-based data. It encapsulates analysis, machine learning and simplifies conducting user studies 
 in naturalistic and laboratory settings. The platform can be integrated with MySQL database.
 
 
 # Getting Started
 
-You can get the source code of all the components that make the AWARE-Light client from GitHub.
+You can get the source code of all the components that make the AWARE client from GitHub.
 ```bash
 $ git clone https://github.com/awareframework/aware-light-client.git
 $ cd aware-light-client
@@ -18,7 +18,7 @@ $ git submodule update --init
 ```
 
 # Contributing
-If you would like to contribute to AWARE-Light, please contact Dr [Simon D'Alfonso](https://findanexpert.unimelb.edu.au/profile/180658-simon-d'alfonso)  or Dr [Vassilis Kostakos](https://people.eng.unimelb.edu.au/vkostakos/).
+If you would like to contribute to AWARE, please contact Dr [Simon D'Alfonso](https://findanexpert.unimelb.edu.au/profile/180658-simon-d'alfonso)  or Dr [Vassilis Kostakos](https://people.eng.unimelb.edu.au/vkostakos/).
 
 
 # App features
@@ -56,15 +56,15 @@ Please make sure the Android SDK is pointing the correct directory and is select
 
 # Frequent Issues
 
-## AWARE-Light flicking after installation
+## AWARE flicking after installation
 Please make sure:
-1) all the permissions are granted to AWARE-Light
-2) location and bluetooth are turned on before installing AWARE-Light
+1) all the permissions are granted to AWARE
+2) location and bluetooth are turned on before installing AWARE
 
-## Error message that AWARE-Light incompatible with the phone
+## Error message that AWARE incompatible with the phone
 For phones with Android 13+, please generate APK file with 'arm64-v8a'.
 
-## AWARE-Light not collecting data
+## AWARE not collecting data
 * The main idea is to keep the application run in the background and prevent system setting from killing it. Battery optimization and locking it in the system menu is needed.
 Here are some general steps, but please note that the specific steps may vary depending on your phone model:
 - Go to Setting -> Battery -> Scenario AI-optimization -> Sleep mode needs to be off
@@ -73,7 +73,7 @@ Here are some general steps, but please note that the specific steps may vary de
 - Go to Setting -> Battery -> More Settings -> Power-saver settings -> Turn on automatically needs to be off
 - Go to Setting -> Battery -> More Settings -> Power-saver settings -> Restrict apps from accessing network needs to be off
 
-* Accessibility needs to be turned on for AWARE-Light for special sensors to work: Applications, Touch, Notifications, Keyboard, Crash logs, Screen reader
+* Accessibility needs to be turned on for AWARE for special sensors to work: Applications, Touch, Notifications, Keyboard, Crash logs, Screen reader
 
 * Accessibility cannot be turned on (a helpful [demonstration video](https://www.youtube.com/watch?v=0bcLjpfrmHw)):
 1) On your Android device, open the Settings app.
