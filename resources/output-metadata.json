@@ -15,6 +15,7 @@
           "value": "x86_64"
         }
       ],
+
       "versionCode": 1,
       "versionName": "4.6.1.beta",
       "outputFile": "aware-phone-x86_64-release.apk"
