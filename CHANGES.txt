@@ -1,4 +1,8 @@
-Change log for AWARE-Light
+Change log for AWARE
+4.6.1.beta
+- New feature to new plugin: Ambient Noise and OpenWeather
+- Rename "AWARE-Light" to "AWARE"
+
 4.5.2.beta
 - Screenshot sensor can capture application name for foreground app.
 
