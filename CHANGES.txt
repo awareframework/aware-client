@@ -1,4 +1,7 @@
 Change log for AWARE
+4.6.2.beta
+- Adjust function to count installation, change the official website url used for receive device info
+
 4.6.1.beta
 - New feature to new plugin: Ambient Noise and OpenWeather
 - Rename "AWARE-Light" to "AWARE"
