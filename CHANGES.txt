@@ -1,9 +1,21 @@
 Change log for AWARE
+4.7.1.beta
+- New feature: Allow participants to add notes and save them to the remote database
+
+4.6.2.beta
+- Adjust function to count installation, change the official website url used for receive device info
+
 4.6.1.beta
 - New feature to new plugin: Ambient Noise and OpenWeather
 - Rename "AWARE-Light" to "AWARE"
 
 Change log for AWARE-Light
+4.6.1.beta
+- New feature: Allow users to take notes if config file container correspond setting.
+
+4.5.5.beta
+- Add function to count installation and send info to official website
+
 4.5.4.beta
 - Fix logic of reschedule next day random esm trigger, avoid repeat appear of esm notification
 
