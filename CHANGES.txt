@@ -1,4 +1,7 @@
 Change log for AWARE
+4.7.1.beta
+- New feature: Allow participants to add notes and save them to the remote database
+
 4.6.2.beta
 - Adjust function to count installation, change the official website url used for receive device info
 
