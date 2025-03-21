@@ -7,11 +7,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
 
+import android.text.TextWatcher;
 import android.view.View;
 
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +28,8 @@ import com.aware.providers.Notes_Provider;
 
 public class TakeNoteActivity extends AppCompatActivity {
     private EditText noteEditText;
+    private TextView charCountText;
+    private final int MAX_CHARS = 10000;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -33,6 +38,7 @@ public class TakeNoteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_take_note);
 
         noteEditText = findViewById(R.id.note_edit_text);
+        charCountText = findViewById(R.id.char_count_text);
 
         findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +58,22 @@ public class TakeNoteActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        charCountText.setText("0/" + MAX_CHARS);
+
+        // Add TextWatcher to monitor text changes
+        noteEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                charCountText.setText(charSequence.length() + "/" + MAX_CHARS);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+    });
 
 
 
