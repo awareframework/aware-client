@@ -1,4 +1,7 @@
 Change log for AWARE
+4.7.2.beta
+- Fix ESM settings parsing crashes and improve error handling
+
 4.7.1.beta
 - New feature: Allow participants to add notes and save them to the remote database
 
