@@ -267,7 +267,6 @@ public class Applications extends AccessibilityService {
                     screenText.put(ScreenText_Provider.ScreenTextData.CLASS_NAME, "");
                 }
 
-
                 screenText.put(ScreenText_Provider.ScreenTextData.USER_ACTION, event.getAction());
                 screenText.put(ScreenText_Provider.ScreenTextData.EVENT_TYPE, event.getEventType());
                 screenText.put(ScreenText_Provider.ScreenTextData.TEXT, currScreenText);

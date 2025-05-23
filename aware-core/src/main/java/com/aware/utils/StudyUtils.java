@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,8 +52,6 @@ import okhttp3.Response;
 /**
  * Service that allows plugins/applications to send data to AWARE's dashboard study
  * Note: joins a study without requiring a QRCode, just the study URL
- *
- * TODO: fix parsing of the URL segments that may be missing
  */
 public class StudyUtils extends IntentService {
     private static final String[] REQUIRED_STUDY_CONFIG_KEYS = {"database", "questions",
@@ -68,8 +67,6 @@ public class StudyUtils extends IntentService {
     public StudyUtils() {
         super("StudyUtils Service");
     }
-
-
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -87,7 +84,6 @@ public class StudyUtils extends IntentService {
         // TODO RIO: Replace GET to webserver a GET to study config URL
         String request;
         if (protocol.equals("https")) {
-
 //            SSLManager.handleUrl(getApplicationContext(), full_url, true);
 
             try {
@@ -248,6 +244,7 @@ public class StudyUtils extends IntentService {
      * @param webserviceServer
      * @param configs
      * @param insertCompliance true to insert a new compliance record (i.e. when updating a study)
+     * @param input_password password for database if required
      */
     public static void applySettings(Context context, String webserviceServer, JSONArray configs, Boolean insertCompliance, String input_password) {
         boolean is_developer = Aware.getSetting(context, Aware_Preferences.DEBUG_FLAG).equals("true");
@@ -262,222 +259,613 @@ public class StudyUtils extends IntentService {
         try {
             Aware.setSetting(context, Aware_Preferences.WEBSERVICE_SERVER, webserviceServer);
             JSONObject studyConfig = configs.getJSONObject(0);  // use first config
-            JSONObject studyInfo = studyConfig.getJSONObject("study_info");
+            JSONObject studyInfo = studyConfig.optJSONObject("study_info");
 
-            // Set database settings
-            JSONObject dbConfig = studyConfig.getJSONObject("database");
-            Aware.setSetting(context, Aware_Preferences.DB_HOST, dbConfig.getString("database_host"));
-            Aware.setSetting(context, Aware_Preferences.DB_PORT, dbConfig.getInt("database_port"));
-            Aware.setSetting(context, Aware_Preferences.DB_NAME, dbConfig.getString("database_name"));
-            Aware.setSetting(context, Aware_Preferences.DB_USERNAME, dbConfig.getString("database_username"));
-
-
-            if (!dbConfig.getBoolean("config_without_password")){
-                Aware.setSetting(context, Aware_Preferences.DB_PASSWORD, dbConfig.getString("database_password"));
-            } else {
-
-                Aware.setSetting(context, Aware_Preferences.DB_PASSWORD, input_password);
+            if (studyInfo == null) {
+                Log.e(Aware.TAG, "Study info is missing or invalid in configuration");
+                return;
             }
 
+            // Set database settings
+            try {
+                JSONObject dbConfig = studyConfig.optJSONObject("database");
+                if (dbConfig != null) {
+                    Aware.setSetting(context, Aware_Preferences.DB_HOST, dbConfig.optString("database_host", ""));
+                    Aware.setSetting(context, Aware_Preferences.DB_PORT, dbConfig.optInt("database_port", 3306));
+                    Aware.setSetting(context, Aware_Preferences.DB_NAME, dbConfig.optString("database_name", ""));
+                    Aware.setSetting(context, Aware_Preferences.DB_USERNAME, dbConfig.optString("database_username", ""));
 
+                    boolean configWithoutPassword = dbConfig.optBoolean("config_without_password", false);
+                    if (!configWithoutPassword) {
+                        Aware.setSetting(context, Aware_Preferences.DB_PASSWORD, dbConfig.optString("database_password", ""));
+                    } else {
+                        Aware.setSetting(context, Aware_Preferences.DB_PASSWORD, input_password);
+                    }
+                } else {
+                    Log.e(Aware.TAG, "Database configuration is missing");
+                }
+            } catch (Exception e) {
+                Log.e(Aware.TAG, "Error setting database configuration: " + e.getMessage());
+            }
 
             // Set study information
             if (insertCompliance) {
-                ContentValues studyData = new ContentValues();
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_TIMESTAMP, System.currentTimeMillis());
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_API, "");
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_URL, webserviceServer);
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_CONFIG, studyConfig.toString());
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_KEY, "0");
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_PI, studyInfo.getString("researcher_first") + " " + studyInfo.getString("researcher_last") + "\nContact: " + studyInfo.getString("researcher_contact"));
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_TITLE, studyInfo.getString("study_title"));
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_DESCRIPTION, studyInfo.getString("study_description"));
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_COMPLIANCE, "updated study");
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_JOINED, System.currentTimeMillis());
-                studyData.put(Aware_Provider.Aware_Studies.STUDY_EXIT, 0);
-                context.getContentResolver().insert(Aware_Provider.Aware_Studies.CONTENT_URI, studyData);
+                try {
+                    ContentValues studyData = new ContentValues();
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_TIMESTAMP, System.currentTimeMillis());
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_API, "");
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_URL, webserviceServer);
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_CONFIG, studyConfig.toString());
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_KEY, "0");
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_PI,
+                            studyInfo.optString("researcher_first", "") + " " +
+                                    studyInfo.optString("researcher_last", "") + "\nContact: " +
+                                    studyInfo.optString("researcher_contact", ""));
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_TITLE,
+                            studyInfo.optString("study_title", studyInfo.optString("study_name", "Unknown Study")));
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_DESCRIPTION,
+                            studyInfo.optString("study_description", ""));
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_COMPLIANCE, "updated study");
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_JOINED, System.currentTimeMillis());
+                    studyData.put(Aware_Provider.Aware_Studies.STUDY_EXIT, 0);
+                    context.getContentResolver().insert(Aware_Provider.Aware_Studies.CONTENT_URI, studyData);
+                } catch (Exception e) {
+                    Log.e(Aware.TAG, "Error inserting study compliance: " + e.getMessage());
+                }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(Aware.TAG, "Error parsing study configuration: " + e.getMessage());
+            return;
         }
 
+        // Initialize arrays for different configuration types
         JSONArray plugins = new JSONArray();
         JSONArray sensors = new JSONArray();
         JSONArray schedulers = new JSONArray();
         JSONArray esm_schedules = new JSONArray();
         JSONArray questions = new JSONArray();
 
+        // Extract configuration elements
         for (int i = 0; i < configs.length(); i++) {
             try {
                 JSONObject element = configs.getJSONObject(i);
-                if (element.has("plugins")) {
+
+                // Extract plugins
+                if (element.has("plugins") && !element.isNull("plugins")) {
                     plugins = element.getJSONArray("plugins");
                 }
-                if (element.has("sensors")) {
+
+                // Extract sensors
+                if (element.has("sensors") && !element.isNull("sensors")) {
                     sensors = element.getJSONArray("sensors");
                 }
-                if (element.has("schedulers")) {
+
+                // Extract schedulers
+                if (element.has("schedulers") && !element.isNull("schedulers")) {
                     schedulers = element.getJSONArray("schedulers");
                 }
-                if (element.has("schedules")) {
+
+                // Extract ESM schedules and questions
+                if (element.has("schedules") && !element.isNull("schedules")) {
                     esm_schedules = element.getJSONArray("schedules");
-                    if (element.has("questions")) questions = element.getJSONArray("questions");
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //Set the sensors' settings first
-        for (int i = 0; i < sensors.length(); i++) {
-            try {
-                JSONObject sensor_config = sensors.getJSONObject(i);
-                Aware.setSetting(context, sensor_config.getString("setting"), sensor_config.get("value"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //Set the plugins' settings now
-        ArrayList<String> active_plugins = new ArrayList<>();
-        for (int i = 0; i < plugins.length(); i++) {
-            try {
-                JSONObject plugin_config = plugins.getJSONObject(i);
-
-                String package_name = plugin_config.getString("plugin");
-                active_plugins.add(package_name);
-
-                JSONArray plugin_settings = plugin_config.getJSONArray("settings");
-                for (int j = 0; j < plugin_settings.length(); j++) {
-                    JSONObject plugin_setting = plugin_settings.getJSONObject(j);
-                    Aware.setSetting(context, plugin_setting.getString("setting"), plugin_setting.get("value"), package_name);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Set up ESM question objects
-        HashMap<String, JSONObject> esm_questions = new HashMap<>();
-        for (int i = 0; i < questions.length(); i++) {
-            try {
-                JSONObject questionJson = questions.getJSONObject(i);
-                String questionId = questionJson.getString("id");
-                esm_questions.put(questionId, new JSONObject().put("esm", questionJson));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Set ESM schedules
-        for (int i = 0; i < esm_schedules.length(); i++) {
-            try {
-                JSONObject scheduleJson = esm_schedules.getJSONObject(i);
-                JSONArray questionIds = scheduleJson.getJSONArray("questions");
-                JSONArray questionObjects = new JSONArray();
-
-                for (int j = 0; j < questionIds.length(); j++) {
-                    questionObjects.put(esm_questions.get(questionIds.getString(j)));
                 }
 
-                createEsmSchedule(context, scheduleJson, questionObjects);
+                if (element.has("questions") && !element.isNull("questions")) {
+                    questions = element.getJSONArray("questions");
+                }
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(Aware.TAG, "Error parsing configuration element: " + e.getMessage());
             }
         }
 
-        //Set other schedulers
-        if (schedulers.length() > 0)
-            Scheduler.setSchedules(context, schedulers);
+        // Set the sensors' settings first
+        processSensorSettings(context, sensors);
 
+        // Set the plugins' settings and prepare for activation
+        ArrayList<String> active_plugins = processPluginSettings(context, plugins);
+
+        // Process ESM settings if available
+        if (questions.length() > 0 || esm_schedules.length() > 0) {
+            try {
+                processEsmSettings(context, questions, esm_schedules);
+            } catch (Exception e) {
+                Log.e(Aware.TAG, "Error processing ESM settings: " + e.getMessage(), e);
+                // Continue with other settings even if ESM fails
+            }
+        }
+
+        // Set other schedulers
+        if (schedulers.length() > 0) {
+            try {
+                Scheduler.setSchedules(context, schedulers);
+            } catch (Exception e) {
+                Log.e(Aware.TAG, "Error setting schedulers: " + e.getMessage());
+            }
+        }
+
+        // Activate plugins
         for (String package_name : active_plugins) {
-            PackageInfo installed = PluginsManager.isInstalled(context, package_name);
-            if (installed != null) {
-                Aware.startPlugin(context, package_name);
-            } else {
-                Aware.downloadPlugin(context, package_name, null, false);
+            try {
+                PackageInfo installed = PluginsManager.isInstalled(context, package_name);
+                if (installed != null) {
+                    Aware.startPlugin(context, package_name);
+                } else {
+                    Aware.downloadPlugin(context, package_name, null, false);
+                }
+            } catch (Exception e) {
+                Log.e(Aware.TAG, "Error activating plugin " + package_name + ": " + e.getMessage());
             }
         }
 
+        // Start Aware service and sync data
         Intent aware = new Intent(context, Aware.class);
         context.startService(aware);
 
-        //Send data to server
         Intent sync = new Intent(Aware.ACTION_AWARE_SYNC_DATA);
         context.sendBroadcast(sync);
     }
 
     /**
-     * Creates a schedule for triggering ESMs based on a JSON object that defines a schedule.
-     * Examples of the schedule JSON:<p>
-     * Interval:
-     * Random:
-     * Repeat:
-     * </p>
-     * @param context
-     * @param scheduleJson JSONObject representing the schedule
-     * @param esmsArray JSONArray representing the ESM questions
+     * Process and apply plugin settings from configuration
+     *
+     * @param context Application context
+     * @param plugins JSONArray of plugin configurations
+     * @return ArrayList of active plugin package names
      */
-    private static void createEsmSchedule(Context context, JSONObject scheduleJson,
-                                          JSONArray esmsArray) {
-        try {
-            String type = scheduleJson.getString("type");
-            String title = scheduleJson.getString("title");
-            String keep = scheduleJson.getString("esm_keep");
-            Scheduler.Schedule schedule = new Scheduler.Schedule(title);
+    private static ArrayList<String> processPluginSettings(Context context, JSONArray plugins) {
+        ArrayList<String> active_plugins = new ArrayList<>();
+        if (plugins == null) return active_plugins;
 
-            if (Aware.DEBUG) Log.d(Aware.TAG, "Creating ESM schedule: " + scheduleJson.toString());
+        for (int i = 0; i < plugins.length(); i++) {
+            try {
+                JSONObject plugin_config = plugins.getJSONObject(i);
 
-            // Set schedule parameters
-            switch (type) {
-                case "interval":
-                    JSONArray days = scheduleJson.getJSONArray("days");
-                    for (int i = 0; i < days.length(); i ++) {
-                        schedule.addWeekday(days.getString(i));
+                if (plugin_config.has("plugin")) {
+                    String package_name = plugin_config.getString("plugin");
+                    active_plugins.add(package_name);
+
+                    // Apply plugin-specific settings if available
+                    if (plugin_config.has("settings") && !plugin_config.isNull("settings")) {
+                        JSONArray plugin_settings = plugin_config.getJSONArray("settings");
+                        for (int j = 0; j < plugin_settings.length(); j++) {
+                            try {
+                                JSONObject plugin_setting = plugin_settings.getJSONObject(j);
+                                if (plugin_setting.has("setting") && plugin_setting.has("value")) {
+                                    String setting = plugin_setting.getString("setting");
+                                    Object value = plugin_setting.get("value");
+
+                                    // Apply setting based on value type
+                                    if (value instanceof Boolean) {
+                                        Aware.setSetting(context, setting, (Boolean) value, package_name);
+                                    } else if (value instanceof Integer) {
+                                        Aware.setSetting(context, setting, (Integer) value, package_name);
+                                    } else if (value instanceof Double) {
+                                        Aware.setSetting(context, setting, (Double) value, package_name);
+                                    } else if (value instanceof String) {
+                                        Aware.setSetting(context, setting, (String) value, package_name);
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                Log.e(Aware.TAG, "Error processing plugin setting: " + e.getMessage());
+                            }
+                        }
                     }
-                    JSONArray hours = scheduleJson.getJSONArray("hours");
-                    for (int i = 0; i < hours.length(); i ++) {
-                        schedule.addHour(hours.getInt(i));
+                }
+            } catch (JSONException e) {
+                Log.e(Aware.TAG, "Error processing plugin: " + e.getMessage());
+            }
+        }
+
+        return active_plugins;
+    }
+
+    /**
+     * Process and apply sensor settings from configuration with extensive debug logging
+     *
+     * @param context Application context
+     * @param sensors JSONArray of sensor configurations
+     */
+    private static void processSensorSettings(Context context, JSONArray sensors) {
+        if (sensors == null) {
+            Log.d(Aware.TAG, "processSensorSettings: sensors array is null");
+            return;
+        }
+
+        Log.d(Aware.TAG, "processSensorSettings: Processing " + sensors.length() + " sensor settings");
+
+        // Track all settings to verify they're applied correctly
+        HashMap<String, String> appliedSettings = new HashMap<>();
+
+        for (int i = 0; i < sensors.length(); i++) {
+            try {
+                JSONObject sensor_config = sensors.getJSONObject(i);
+                Log.d(Aware.TAG, "processSensorSettings: Sensor #" + i + ": " + sensor_config.toString());
+
+                if (sensor_config.has("setting") && sensor_config.has("value")) {
+                    String setting = sensor_config.getString("setting");
+                    Object value = sensor_config.get("value");
+                    String valueType = value.getClass().getSimpleName();
+
+                    Log.d(Aware.TAG, "processSensorSettings: Processing setting: " + setting +
+                            " with value: " + value + " (type: " + valueType + ")");
+
+                    // Apply setting based on value type
+                    try {
+                        if (value instanceof Boolean) {
+                            Aware.setSetting(context, setting, (Boolean) value);
+                        } else if (value instanceof Integer) {
+                            Aware.setSetting(context, setting, (Integer) value);
+                        } else if (value instanceof Double) {
+                            Aware.setSetting(context, setting, (Double) value);
+                        } else if (value instanceof Long) {
+                            Aware.setSetting(context, setting, ((Long) value).intValue());
+                        } else if (value instanceof String) {
+                            Aware.setSetting(context, setting, (String) value);
+                        } else {
+                            // For any other type, convert to string
+                            Aware.setSetting(context, setting, value.toString());
+                        }
+                        appliedSettings.put(setting, value.toString());
+                        Log.d(Aware.TAG, "processSensorSettings: Successfully applied setting: " + setting);
+                    } catch (Exception e) {
+                        Log.e(Aware.TAG, "processSensorSettings: Error applying setting " + setting +
+                                ": " + e.getMessage());
                     }
-                    break;
-                case "random":
-                    String firstHourString = scheduleJson.getString("firsthour");
-                    int firstHour = Integer.parseInt(firstHourString.split(":")[0]);
-
-                    String lastHourString = scheduleJson.getString("lasthour");
-                    int lastHour = Integer.parseInt(lastHourString.split(":")[0]);
-
-                    schedule.addHour(firstHour)
-                            .addHour(lastHour)
-                            .random(scheduleJson.getInt("randomCount"),
-                                    scheduleJson.getInt("randomInterval"));
-                    break;
-                case "repeat":
-                    schedule.setInterval(scheduleJson.getInt("repeatInterval"));
-                    break;
-                default:
-                    return;
+                } else {
+                    Log.d(Aware.TAG, "processSensorSettings: Sensor config missing required fields");
+                }
+            } catch (JSONException e) {
+                Log.e(Aware.TAG, "processSensorSettings: JSONException: " + e.getMessage());
             }
+        }
 
-            // Set trigger for ESMs as the schedule's title
-            for (int i = 0; i < esmsArray.length(); i ++) {
-                esmsArray.getJSONObject(i).getJSONObject("esm").put(ESM_Question.esm_trigger, title);
-                esmsArray.getJSONObject(i).getJSONObject("esm").put(ESM_Question.esm_keep, keep);
+        // Verify all settings were successfully applied
+        Log.d(Aware.TAG, "processSensorSettings: Verifying " + appliedSettings.size() + " applied settings");
+        for (Map.Entry<String, String> entry : appliedSettings.entrySet()) {
+            String key = entry.getKey();
+            String expectedValue = entry.getValue();
+            String actualValue = Aware.getSetting(context, key);
+
+            if (actualValue.equals(expectedValue)) {
+                Log.d(Aware.TAG, "processSensorSettings: Verified setting: " + key +
+                        " = " + actualValue + " ✓");
+            } else {
+                Log.e(Aware.TAG, "processSensorSettings: Setting verification failed for " + key +
+                        ": expected=" + expectedValue + ", actual=" + actualValue + " ✗");
             }
-
-            schedule.setActionType(Scheduler.ACTION_TYPE_BROADCAST)
-                    .setActionIntentAction(ESM.ACTION_AWARE_QUEUE_ESM)
-                    .addActionExtra(ESM.EXTRA_ESM, esmsArray.toString());
-            Scheduler.saveSchedule(context, schedule);
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 
     /**
+     * Process and apply ESM settings from configuration with debug logging
      *
-     * @param context
+     * @param context Application context
+     * @param questions JSONArray of ESM questions
+     * @param schedules JSONArray of ESM schedules
+     */
+    private static void processEsmSettings(Context context, JSONArray questions, JSONArray schedules) {
+        Log.d(Aware.TAG, "processEsmSettings: Starting ESM processing");
+
+        if (questions == null) {
+            Log.e(Aware.TAG, "processEsmSettings: questions array is null");
+            return;
+        }
+
+        if (schedules == null) {
+            Log.e(Aware.TAG, "processEsmSettings: schedules array is null");
+            return;
+        }
+
+        Log.d(Aware.TAG, "processEsmSettings: Found " + questions.length() + " questions and " +
+                schedules.length() + " schedules");
+
+        // Log details about each question
+        for (int i = 0; i < questions.length(); i++) {
+            try {
+                JSONObject questionJson = questions.getJSONObject(i);
+                String questionId = questionJson.optString("id", "unknown");
+                String questionType = questionJson.optString("esm_type", "unknown");
+                String questionTitle = questionJson.optString("esm_title", "unknown");
+
+                Log.d(Aware.TAG, "processEsmSettings: Question #" + i +
+                        ": id=" + questionId +
+                        ", type=" + questionType +
+                        ", title=" + questionTitle);
+
+                Log.d(Aware.TAG, "processEsmSettings: Full question: " + questionJson.toString());
+            } catch (JSONException e) {
+                Log.e(Aware.TAG, "processEsmSettings: Error processing question #" + i + ": " + e.getMessage());
+            }
+        }
+
+        // Log details about each schedule
+        for (int i = 0; i < schedules.length(); i++) {
+            try {
+                JSONObject scheduleJson = schedules.getJSONObject(i);
+                String scheduleTitle = scheduleJson.optString("title", "unknown");
+                String scheduleType = scheduleJson.optString("type", "unknown");
+
+                Log.d(Aware.TAG, "processEsmSettings: Schedule #" + i +
+                        ": title=" + scheduleTitle +
+                        ", type=" + scheduleType);
+
+                // Log the question IDs for this schedule
+                if (scheduleJson.has("questions")) {
+                    Object questionsObj = scheduleJson.get("questions");
+                    if (questionsObj instanceof JSONArray) {
+                        JSONArray questionIds = (JSONArray) questionsObj;
+                        StringBuilder idsStr = new StringBuilder();
+                        for (int j = 0; j < questionIds.length(); j++) {
+                            idsStr.append(questionIds.get(j)).append(", ");
+                        }
+                        Log.d(Aware.TAG, "processEsmSettings: Schedule questions: " + idsStr);
+                    } else {
+                        Log.d(Aware.TAG, "processEsmSettings: Schedule has single question: " + questionsObj);
+                    }
+                } else {
+                    Log.e(Aware.TAG, "processEsmSettings: Schedule missing questions field");
+                }
+
+                Log.d(Aware.TAG, "processEsmSettings: Full schedule: " + scheduleJson.toString());
+            } catch (JSONException e) {
+                Log.e(Aware.TAG, "processEsmSettings: Error processing schedule #" + i + ": " + e.getMessage());
+            }
+        }
+
+        // Create a map of question objects by their IDs
+        HashMap<String, JSONObject> esm_questions = new HashMap<>();
+        for (int i = 0; i < questions.length(); i++) {
+            try {
+                JSONObject questionJson = questions.getJSONObject(i);
+                if (questionJson.has("id")) {
+                    String questionId = questionJson.getString("id");
+                    JSONObject esmWrapper = new JSONObject().put("esm", questionJson);
+                    esm_questions.put(questionId, esmWrapper);
+                    Log.d(Aware.TAG, "processEsmSettings: Mapped question ID " + questionId +
+                            " to object: " + esmWrapper.toString());
+                } else {
+                    Log.e(Aware.TAG, "processEsmSettings: Question without ID: " + questionJson.toString());
+                }
+            } catch (JSONException e) {
+                Log.e(Aware.TAG, "processEsmSettings: Error mapping question: " + e.getMessage());
+            }
+        }
+
+        // Process each schedule
+        for (int i = 0; i < schedules.length(); i++) {
+            try {
+                JSONObject scheduleJson = schedules.getJSONObject(i);
+                Log.d(Aware.TAG, "processEsmSettings: Processing schedule: " + scheduleJson.optString("title", "unknown"));
+
+                // Skip if no questions array or not of the expected type
+                if (!scheduleJson.has("questions") || scheduleJson.isNull("questions")) {
+                    Log.e(Aware.TAG, "processEsmSettings: Schedule missing questions array");
+                    continue;
+                }
+
+                // Get question IDs from the schedule
+                JSONArray questionIds;
+                try {
+                    questionIds = scheduleJson.getJSONArray("questions");
+                    Log.d(Aware.TAG, "processEsmSettings: Found questions array with " +
+                            questionIds.length() + " items");
+                } catch (JSONException e) {
+                    // Try to handle case where questions might be a single value instead of array
+                    try {
+                        Object questionObj = scheduleJson.get("questions");
+                        questionIds = new JSONArray();
+                        questionIds.put(questionObj);
+                        Log.d(Aware.TAG, "processEsmSettings: Converted single question to array");
+                    } catch (Exception ex) {
+                        Log.e(Aware.TAG, "processEsmSettings: Invalid questions format: " + e.getMessage());
+                        continue;
+                    }
+                }
+
+                // Build question objects array for this schedule
+                JSONArray questionObjects = new JSONArray();
+                for (int j = 0; j < questionIds.length(); j++) {
+                    try {
+                        String questionId = String.valueOf(questionIds.get(j));
+                        JSONObject questionObj = esm_questions.get(questionId);
+
+                        if (questionObj != null) {
+                            questionObjects.put(questionObj);
+                            Log.d(Aware.TAG, "processEsmSettings: Added question ID " + questionId +
+                                    " to schedule");
+                        } else {
+                            Log.e(Aware.TAG, "processEsmSettings: Question ID " + questionId +
+                                    " not found in questions map");
+                        }
+                    } catch (JSONException e) {
+                        Log.e(Aware.TAG, "processEsmSettings: Error adding question to schedule: " + e.getMessage());
+                    }
+                }
+
+                // Create schedule if there are questions to add
+                if (questionObjects.length() > 0) {
+                    Log.d(Aware.TAG, "processEsmSettings: Creating schedule with " +
+                            questionObjects.length() + " questions");
+                    createEsmSchedule(context, scheduleJson, questionObjects);
+                } else {
+                    Log.e(Aware.TAG, "processEsmSettings: No valid questions for schedule");
+                }
+            } catch (JSONException e) {
+                Log.e(Aware.TAG, "processEsmSettings: Error processing schedule: " + e.getMessage());
+            }
+        }
+
+        Log.d(Aware.TAG, "processEsmSettings: Completed ESM processing");
+    }
+
+    /**
+     * Creates a schedule for triggering ESMs with debug logging
+     *
+     * @param context Application context
+     * @param scheduleJson JSONObject representing the schedule
+     * @param esmsArray JSONArray representing the ESM questions
+     */
+    private static void createEsmSchedule(Context context, JSONObject scheduleJson, JSONArray esmsArray) {
+        try {
+            String scheduleTitle = scheduleJson.optString("title", "unnamed");
+            Log.d(Aware.TAG, "createEsmSchedule: Creating schedule: " + scheduleTitle);
+
+            // Get required schedule properties with defaults
+            String type = scheduleJson.optString("type", "");
+            Log.d(Aware.TAG, "createEsmSchedule: Schedule type: " + type);
+
+            // Handle different types of "esm_keep" field (could be string or boolean)
+            String keep;
+            try {
+                boolean keepBool = scheduleJson.getBoolean("esm_keep");
+                keep = String.valueOf(keepBool);
+                Log.d(Aware.TAG, "createEsmSchedule: Found esm_keep as boolean: " + keep);
+            } catch (Exception e) {
+                keep = scheduleJson.optString("esm_keep", "false");
+                Log.d(Aware.TAG, "createEsmSchedule: Found esm_keep as string: " + keep);
+
+                // Handle potential typo in the field name (seen in some configs)
+                if (keep.equals("false") && scheduleJson.has("esm_kepp")) {
+                    keep = scheduleJson.optString("esm_kepp", "false");
+                    Log.d(Aware.TAG, "createEsmSchedule: Found esm_kepp (typo): " + keep);
+                }
+            }
+
+            // Create schedule object
+            Scheduler.Schedule schedule = new Scheduler.Schedule(scheduleTitle);
+
+            // Set schedule parameters based on type
+            switch (type.toLowerCase()) {
+                case "interval":
+                    Log.d(Aware.TAG, "createEsmSchedule: Configuring interval schedule");
+                    try {
+                        // Add days if available
+                        if (scheduleJson.has("days") && !scheduleJson.isNull("days")) {
+                            JSONArray days = scheduleJson.getJSONArray("days");
+                            for (int i = 0; i < days.length(); i++) {
+                                String day = days.getString(i);
+                                schedule.addWeekday(day);
+                                Log.d(Aware.TAG, "createEsmSchedule: Added day: " + day);
+                            }
+                        } else {
+                            Log.d(Aware.TAG, "createEsmSchedule: No days specified");
+                        }
+
+                        // Add hours if available
+                        if (scheduleJson.has("hours") && !scheduleJson.isNull("hours")) {
+                            JSONArray hours = scheduleJson.getJSONArray("hours");
+                            for (int i = 0; i < hours.length(); i++) {
+                                int hour = hours.getInt(i);
+                                schedule.addHour(hour);
+                                Log.d(Aware.TAG, "createEsmSchedule: Added hour: " + hour);
+                            }
+                        } else {
+                            Log.d(Aware.TAG, "createEsmSchedule: No hours specified");
+                        }
+                    } catch (Exception e) {
+                        Log.e(Aware.TAG, "createEsmSchedule: Error setting interval: " + e.getMessage());
+                    }
+                    break;
+
+                case "random":
+                    Log.d(Aware.TAG, "createEsmSchedule: Configuring random schedule");
+                    try {
+                        // Parse first hour
+                        String firstHourString = scheduleJson.optString("firsthour", "9:00");
+                        Log.d(Aware.TAG, "createEsmSchedule: First hour string: " + firstHourString);
+
+                        int firstHour;
+                        try {
+                            firstHour = Integer.parseInt(firstHourString.split(":")[0]);
+                        } catch (Exception e) {
+                            firstHour = 9; // Default to 9 AM if parsing fails
+                            Log.e(Aware.TAG, "createEsmSchedule: Error parsing firsthour, using default: " + e.getMessage());
+                        }
+
+                        // Parse last hour
+                        String lastHourString = scheduleJson.optString("lasthour", "21:00");
+                        Log.d(Aware.TAG, "createEsmSchedule: Last hour string: " + lastHourString);
+
+                        int lastHour;
+                        try {
+                            lastHour = Integer.parseInt(lastHourString.split(":")[0]);
+                        } catch (Exception e) {
+                            lastHour = 21; // Default to 9 PM if parsing fails
+                            Log.e(Aware.TAG, "createEsmSchedule: Error parsing lasthour, using default: " + e.getMessage());
+                        }
+
+                        int randomCount = scheduleJson.optInt("randomCount", 1);
+                        int randomInterval = scheduleJson.optInt("randomInterval", 30);
+
+                        Log.d(Aware.TAG, "createEsmSchedule: Random parameters - firstHour: " + firstHour +
+                                ", lastHour: " + lastHour +
+                                ", count: " + randomCount +
+                                ", interval: " + randomInterval);
+
+                        // Add hours and random parameters
+                        schedule.addHour(firstHour)
+                                .addHour(lastHour)
+                                .random(randomCount, randomInterval);
+                    } catch (Exception e) {
+                        Log.e(Aware.TAG, "createEsmSchedule: Error setting random schedule: " + e.getMessage());
+                    }
+                    break;
+
+                case "repeat":
+                    Log.d(Aware.TAG, "createEsmSchedule: Configuring repeat schedule");
+                    try {
+                        int repeatInterval = scheduleJson.optInt("repeatInterval", 60);
+                        Log.d(Aware.TAG, "createEsmSchedule: Repeat interval: " + repeatInterval);
+                        schedule.setInterval(repeatInterval);
+                    } catch (Exception e) {
+                        Log.e(Aware.TAG, "createEsmSchedule: Error setting repeat interval: " + e.getMessage());
+                    }
+                    break;
+
+                default:
+                    Log.e(Aware.TAG, "createEsmSchedule: Unknown schedule type: " + type);
+                    return;
+            }
+
+            // Set trigger for ESMs as the schedule's title
+            Log.d(Aware.TAG, "createEsmSchedule: Setting trigger and keep for " + esmsArray.length() + " ESMs");
+            for (int i = 0; i < esmsArray.length(); i++) {
+                try {
+                    JSONObject esmObj = esmsArray.getJSONObject(i);
+                    JSONObject esm = esmObj.getJSONObject("esm");
+
+                    esm.put(ESM_Question.esm_trigger, scheduleTitle);
+                    esm.put(ESM_Question.esm_keep, keep);
+
+                    Log.d(Aware.TAG, "createEsmSchedule: Set trigger=" + scheduleTitle +
+                            " and keep=" + keep + " for ESM #" + i);
+                } catch (JSONException e) {
+                    Log.e(Aware.TAG, "createEsmSchedule: Error setting ESM trigger: " + e.getMessage());
+                }
+            }
+
+            // Save the schedule
+            try {
+                schedule.setActionType(Scheduler.ACTION_TYPE_BROADCAST)
+                        .setActionIntentAction(ESM.ACTION_AWARE_QUEUE_ESM)
+                        .addActionExtra(ESM.EXTRA_ESM, esmsArray.toString());
+
+                Scheduler.saveSchedule(context, schedule);
+                Log.d(Aware.TAG, "createEsmSchedule: Successfully saved schedule: " + scheduleTitle);
+            } catch (Exception e) {
+                Log.e(Aware.TAG, "createEsmSchedule: Error saving schedule: " + e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            Log.e(Aware.TAG, "createEsmSchedule: Error creating ESM schedule: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Synchronizes the study configuration with the server
+     *
+     * @param context Application context
+     * @param toast Whether to show toast messages
      */
     public static void syncStudyConfig(Context context, Boolean toast) {
         if (!Aware.isStudy(context)) return;
@@ -596,23 +984,44 @@ public class StudyUtils extends IntentService {
      * @return true if the study config is valid, false otherwise
      */
     public static boolean validateStudyConfig(Context context, JSONObject config, String input_password) {
+        if (config == null) {
+            Log.e(Aware.TAG, "Study configuration is null");
+            return false;
+        }
+
+        // Check for required keys
         for (String key: REQUIRED_STUDY_CONFIG_KEYS) {
-            if (!config.has(key)) return false;
+            if (!config.has(key)) {
+                Log.e(Aware.TAG, "Study configuration missing required key: " + key);
+                return false;
+            }
         }
 
         // Test database connection
         try {
             JSONObject dbInfo = config.getJSONObject("database");
-            return Jdbc.testConnection(dbInfo.getString("database_host"),
-                    dbInfo.getString("database_port"), dbInfo.getString("database_name"),
-                    dbInfo.getString("database_username"), dbInfo.getString("database_password"),
-                    dbInfo.getBoolean("config_without_password"),
+            return Jdbc.testConnection(
+                    dbInfo.getString("database_host"),
+                    dbInfo.getString("database_port"),
+                    dbInfo.getString("database_name"),
+                    dbInfo.getString("database_username"),
+                    dbInfo.getString("database_password"),
+                    dbInfo.optBoolean("config_without_password", false),
                     input_password);
         } catch (JSONException e) {
+            Log.e(Aware.TAG, "Error validating database configuration: " + e.getMessage());
             return false;
         }
     }
 
+    /**
+     * Compares two JSON objects for equality
+     *
+     * @param obj1 First JSON object
+     * @param obj2 Second JSON object
+     * @param strict Whether to perform strict comparison
+     * @return true if the objects are equal, false otherwise
+     */
     private static boolean jsonEquals(JSONObject obj1, JSONObject obj2, boolean strict) {
         try {
             JSONAssert.assertEquals(obj1, obj2, strict);

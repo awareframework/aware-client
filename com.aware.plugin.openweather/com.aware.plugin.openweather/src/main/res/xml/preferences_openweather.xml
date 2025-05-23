@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="plugin_openweather"
+    android:title="@string/app_name">
+
+    <CheckBoxPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="false"
+        android:key="status_plugin_openweather"
+        android:persistent="true"
+        android:summary="Weather conditions from OpenWeather API"
+        android:title="Active" />
+
+    <ListPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="metric"
+        android:entries="@array/units_labels"
+        android:entryValues="@array/units_values"
+        android:key="plugin_openweather_measurement_units"
+        android:persistent="true"
+        android:title="Measurement unit" />
+
+    <EditTextPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="60"
+        android:key="plugin_openweather_frequency"
+        android:persistent="true"
+        android:summary="Every 60 minute(s)"
+        android:title="Update frequency" />
+
+    <EditTextPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="ada11fb870974565377df238f3046aa9"
+        android:key="plugin_openweather_api_key"
+        android:persistent="true"
+        android:summary="Get your free API key from openweathermap.org"
+        android:title="API Key" />
+</PreferenceScreen>

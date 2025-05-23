@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:key="plugin_ambient_noise"
+                  android:title="@string/app_name"
+>
+    <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="status_plugin_ambient_noise"
+            android:persistent="true"
+            android:summary="Detects silent from noisy surroundings."
+            android:title="Active"/>
+
+    <EditTextPreference
+            android:defaultValue="5"
+            android:inputType="numberDecimal"
+            android:key="frequency_plugin_ambient_noise"
+            android:persistent="true"
+            android:summary="Every 5 minutes"
+            android:title="How frequently to sample audio (in minutes)"/>
+
+    <EditTextPreference
+            android:defaultValue="30"
+            android:inputType="numberDecimal"
+            android:key="plugin_ambient_noise_sample_size"
+            android:persistent="true"
+            android:summary="Listen 30 second(s)"
+            android:title="How long to sample for (in seconds)"/>
+
+    <EditTextPreference
+            android:defaultValue="50"
+            android:inputType="numberDecimal"
+            android:key="plugin_ambient_noise_silence_threshold"
+            android:persistent="true"
+            android:summary="Silent below 50dB"
+            android:title="How loud is silence?"/>
+
+</PreferenceScreen>

@@ -1,0 +1,47 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.aware.plugin.openweather">
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <service
+            android:name="com.aware.plugin.openweather.Plugin"
+            android:exported="true"
+            android:label="AWARE: OpenWeather" />
+
+        <activity
+            android:name="com.aware.plugin.openweather.Settings"
+            android:label="AWARE: Openweather"
+            android:exported="true" />
+
+        <provider
+            android:name="com.aware.plugin.openweather.Provider"
+            android:authorities="${applicationId}.provider.openweather"
+            android:exported="true"
+            android:label="@string/plugin_openweather"
+            android:readPermission="com.aware.READ_CONTEXT_DATA"
+            android:syncable="true"
+            android:writePermission="com.aware.WRITE_CONTEXT_DATA" />
+
+        <service
+            android:name="com.aware.plugin.openweather.syncadapters.Openweather_Sync"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync_openweather" />
+        </service>
+
+    </application>
+
+</manifest>
