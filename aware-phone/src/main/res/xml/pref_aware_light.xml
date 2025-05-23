@@ -765,16 +765,64 @@
                 android:summary="Every X seconds. Default 60 seconds (recommended)"
                 android:title="Wi-Fi scanning update frequency" />
         </PreferenceScreen>
+        <PreferenceScreen
+            android:icon="@drawable/ic_action_screenshot"
+            android:key="screenshot"
+            android:summary="screenshot capture"
+            android:title="Screenshot">
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="status_screenshot"
+                android:persistent="true"
+                android:title="Active" />
+
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="status_screenshot_local_storage"
+                android:persistent="true"
+                android:title="Save Screenshot to Local Storage"
+                android:summary="If checked, screenshots will be saved locally. Otherwise, they will only be uploaded to the database." />
+
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/aware_plugins"
+        android:title="Plugin">
+        <Preference
+            android:key="ambient_noise_settings"
+            android:title="Ambient Noise"
+            android:summary="Configure ambient noise detection">
+            <intent
+                android:targetPackage="com.aware.phone"
+                android:targetClass="com.aware.plugin.ambient_noise.Settings"
+                />
+        </Preference>
+
+        <Preference
+            android:key="openweather_settings"
+            android:title="OpenWeather"
+            android:summary="Configure OpenWeather plugin">
+            <intent
+                android:targetPackage="com.aware.phone"
+                android:targetClass="com.aware.plugin.openweather.Settings"
+                />
+        </Preference>
     </PreferenceCategory>
 
     <PreferenceCategory
         android:key="study_actions"
         android:title="Study">
 
+
         <com.aware.phone.ui.prefs.StudyInfoPref
             android:key="study_info_pref" />
+        <com.aware.phone.ui.prefs.TakeNotesPref
+            android:key="take_notes_pref"/>
         <com.aware.phone.ui.prefs.StudySyncPref
             android:key="study_sync_pref" />
+        <com.aware.phone.ui.prefs.ExportDataPref
+            android:key="export_data_pref" />
         <com.aware.phone.ui.prefs.QuitStudyPref
             android:key="study_quit_button" />
 

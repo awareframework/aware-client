@@ -65,13 +65,13 @@ public class TestActivity extends Activity {
         });
 
         Button btnSentimentat = findViewById(R.id.btnSentimental);
-        btnSentimentat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TestSentimental sentimental = new TestSentimental();
-                sentimental.test(getApplicationContext());
-            }
-        });
+//        btnSentimentat.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                TestSentimental sentimental = new TestSentimental();
+//                sentimental.test(getApplicationContext());
+//            }
+//        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE);

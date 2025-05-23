@@ -17,7 +17,8 @@ import android.widget.ProgressBar;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
-import com.aware.phone.ui.Aware_Light_Client;
+import com.aware.ScreenShot;
+import com.aware.phone.ui.Aware_Client;
 import com.aware.providers.Aware_Provider;
 
 
@@ -152,7 +153,7 @@ public class QuitStudyDialog extends DialogFragment {
                     mActivity.finish();
 
                     // Redirect the user to the main UI
-                    Intent mainUI = new Intent(mActivity, Aware_Light_Client.class);
+                    Intent mainUI = new Intent(mActivity, Aware_Client.class);
                     mainUI.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(mainUI);
                 }
@@ -161,9 +162,14 @@ public class QuitStudyDialog extends DialogFragment {
 
         @Override
         protected Void doInBackground(Void... params) {
+            // Stop the screenshot service
+            stopScreenshotService();
+
+            // Reset Aware settings
             Aware.reset(mActivity);
             return null;
         }
+
 
         @Override
         protected void onPostExecute(Void aVoid) {
@@ -171,4 +177,10 @@ public class QuitStudyDialog extends DialogFragment {
             mQuitting.dismiss();
         }
     }
+
+    private void stopScreenshotService() {
+        Intent serviceIntent = new Intent(mActivity, ScreenShot.class);
+        mActivity.stopService(serviceIntent);
+    }
+
 }
