@@ -1,5 +1,5 @@
 Change log for AWARE
-4.2.0.light.bundle
+4.2.1.light.bundle
 - New feature: Allow participants to add notes and save them to the remote database
 - Adjust function to count installation, change the official website url used for receive device info
 - New feature to new plugin: Ambient Noise and OpenWeather
