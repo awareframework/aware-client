@@ -1,0 +1,45 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.aware.plugin.ambient_noise">
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application>
+        <service
+            android:name="com.aware.plugin.ambient_noise.Plugin"
+            android:exported="true"
+            android:label="AWARE: Ambient Noise" />
+
+        <activity
+            android:name="com.aware.plugin.ambient_noise.Settings"
+            android:exported="true"
+            android:label="AWARE: Ambient Noise" />
+
+        <service
+            android:name="com.aware.plugin.ambient_noise.AudioAnalyser"
+            android:exported="true"
+            android:label="AWARE: Ambient Noise API" />
+
+        <provider
+            android:name="com.aware.plugin.ambient_noise.Provider"
+            android:authorities="${applicationId}.provider.ambient_noise"
+            android:exported="true"
+            android:label="@string/plugin_ambient_noise"
+            android:readPermission="com.aware.READ_CONTEXT_DATA"
+            android:syncable="true"
+            android:writePermission="com.aware.WRITE_CONTEXT_DATA" />
+
+        <service
+            android:name="com.aware.plugin.ambient_noise.syncadapters.Ambient_Noise_Sync"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync_ambient_noise" />
+        </service>
+    </application>
+</manifest>

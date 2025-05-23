@@ -1,0 +1,5 @@
+<resources>
+    <string name="label_maximum">max:</string>
+    <string name="label_minimum">min:</string>
+    <string name="plugin_openweather">Plugin: Openweather</string>
+</resources>

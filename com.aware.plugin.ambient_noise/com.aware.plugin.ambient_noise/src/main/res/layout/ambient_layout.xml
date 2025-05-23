@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/context_ambient_noise"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="1dp"
+    android:layout_marginTop="1dp"
+    android:fitsSystemWindows="false"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/ambient_noise_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_action_ambient_noise" />
+
+    <TextView
+            android:id="@+id/decibels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="* dB"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/black"
+            android:layout_toEndOf="@+id/ambient_noise_icon" android:layout_centerVertical="true"/>
+
+    <TextView
+            android:id="@+id/ambient_noise"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:paddingEnd="5dp"
+            android:text="Silent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black" android:layout_centerVertical="true"
+            android:layout_marginEnd="11dp"/>
+    <TextView
+            android:text="* Hz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/decibels" android:id="@+id/frequency_hz" android:textColor="#000"
+            android:layout_marginLeft="5dp"/>
+
+</RelativeLayout>
