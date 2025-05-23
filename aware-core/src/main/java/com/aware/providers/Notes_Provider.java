@@ -31,8 +31,8 @@ public class Notes_Provider extends ContentProvider {
 
         public static final Uri CONTENT_URI = Uri.parse("content://"
                 + Notes_Provider.AUTHORITY + "/notes");
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.applications.notes";
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.applications.notes";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.notes";
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.notes";
 
         public static final String _ID = "_id";
         public static final String TIMESTAMP = "timestamp";

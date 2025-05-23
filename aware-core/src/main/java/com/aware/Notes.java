@@ -1,12 +1,14 @@
 package com.aware;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SyncRequest;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.aware.providers.Keyboard_Provider;
 import com.aware.providers.Notes_Provider;
 import com.aware.syncadapters.Notes_Sync;
 import com.aware.utils.Aware_Sensor;
@@ -33,6 +35,22 @@ public class Notes extends Aware_Sensor {
 
         Log.d(TAG, "Notes service created!");
     }
+
+
+    private final BroadcastReceiver noteReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() != null) {
+                switch (intent.getAction()) {
+                    case Aware.ACTION_AWARE_SYNC_DATA:
+                        Bundle sync = new Bundle();
+                        sync.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+                        sync.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+                        ContentResolver.requestSync(Aware.getAWAREAccount(context), Notes_Provider.AUTHORITY, sync);
+                }
+            }
+        }
+    };
 
     @Override
     public void onDestroy() {
@@ -66,12 +84,18 @@ public class Notes extends Aware_Sensor {
                         .setExtras(new Bundle()).build();
                 ContentResolver.requestSync(request);
             }
-
+            registerNoteReceiver();
             Log.d(TAG, "Sync configured for authority: " + Notes_Provider.getAuthority(this));
             Log.d(TAG, "Is syncable: " + ContentResolver.getIsSyncable(Aware.getAWAREAccount(this), Notes_Provider.getAuthority(this)));
             Log.d(TAG, "Auto sync: " + ContentResolver.getSyncAutomatically(Aware.getAWAREAccount(this), Notes_Provider.getAuthority(this)));
         }
 
         return START_STICKY;
+    }
+
+    private void registerNoteReceiver(){
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Aware.ACTION_AWARE_SYNC_DATA);
+        registerReceiver(noteReceiver, filter);
     }
 }
